@@ -1,0 +1,113 @@
+{
+  "name": "Layanan Chatbot AI Sepatu",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f1503f52-af71-4cd7-bda4-6f6edb394154",
+      "name": "When chat message received",
+      "webhookId": "c2151a8d-d60c-4c66-a3a5-3d1d634ed6e5"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Anda adalah chatbot layanan pelanggan Toko Sepatu Mewah. \nTugas Anda adalah menjawab semua pertanyaan pelanggan tentang:\n- Jenis sepatu apa yang ada ditoko ini?\n- Berapa harga sepatunya? \n- Apakah masih tersedia stok sepatu?\n- Berapa promo dan diskon untuk harga sepatunya\n- Apakah metode bisa pembayaran bisa menggunakan transfer?\n\nJawablah dengan bahasa yang ramah, jelas, dan mudah dimengerti.\nJika pertanyaan tidak terkait toko, jawab sopan bahwa Anda hanya bisa menjawab tentang toko ini.are a helpful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "abb14ef8-3abc-44b4-8aa4-6c5e89e2d709",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        208,
+        240
+      ],
+      "id": "b38c22aa-e8c1-4376-b995-5963d5d2326f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YoRCPcRAseiHsKU4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        352
+      ],
+      "id": "c78f850b-9d47-486f-ba82-7db7fed863a5",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e4c1eddd-ec62-4b6f-8ec6-2d5bf2c8486c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e14287ee9d40c2803a79b2df1e7934b9c42aa9996b783d80c545c32f59dc5e31"
+  },
+  "id": "kJIIC2LoqAsZLgR3",
+  "tags": []
+}
