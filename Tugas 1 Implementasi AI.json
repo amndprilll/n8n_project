@@ -1,0 +1,103 @@
+{
+  "name": "Tugas 1 Implementasi AI",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Data Pengguna Siswa",
+        "formDescription": "Isi data diri sesuai ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nama",
+              "placeholder": "Masukkan nama lengkap anda",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "placeholder": "Masukkan email aktif anda",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Kelas",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Kelas 10"
+                  },
+                  {
+                    "option": "Kelas 11"
+                  },
+                  {
+                    "option": "Kelas 12"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c9b5c25a-c395-4a11-905d-f528622040d4",
+      "name": "On form submission",
+      "webhookId": "872b465b-a04e-4906-8b6f-4cfb06786cc2"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "=Pendataan anda berhasil {{ $json.Nama }}",
+        "message": "=<h2>Halo {{ $json.Nama }},</h2>\n\n<p>Terima kasih mengisi data kamu.</p>\n\n<p>Berikut data kamu:</p>\n<ul>\n  <li><b>Nama:</b> {{ $json.Nama }}</li>\n  <li><b>Email:</b> {{ $json.Email }}</li>\n  <li><b>Kelas:</b> {{ $json.Kelas }}</li>\n</ul>\n\n<p>Salam,<br>Admin</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "339861fe-04c5-46a7-9b9c-54da9102f4a3",
+      "name": "Send a message",
+      "webhookId": "f77ad132-252e-4ac3-bab5-6a484d095164",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GpfX8z3Vp6VRCTtk",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "43080b8b-1370-45ca-ad25-24bdcfe982cf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f777305a16fb3f863121adac5239eeee0e809720d144c4bf528788f5765bb5cd"
+  },
+  "id": "7OK0AAKZpUlb4yRa",
+  "tags": []
+}
