@@ -1,0 +1,686 @@
+{
+  "name": "1. Bot Resolusi Sengketa Gaji",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "21619a2d-c2be-4c60-9a39-4a5d216a1398",
+      "name": "Telegram Trigger1",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        480
+      ],
+      "webhookId": "55cd3a1a-e10f-4f06-bb90-0772adccbb96",
+      "credentials": {
+        "telegramApi": {
+          "id": "M1mvJFg9qDqIE9DV",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "sessionId",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5e952e25-c8cc-47d1-9c6a-f84687a5c8aa",
+      "name": "Set Session ID1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1184,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger1').item.json.message.text }}",
+        "options": {
+          "systemMessage": "=Kamu adalah asisten HRD yang empatik dan suportif.\n\nATURAN WAJIB:\n1. JANGAN mengarang informasi. Jika belum tahu email, tanyakan dengan sopan.\n2. Cek gaji: Gunakan tool 'Get row(s) in sheet' berdasarkan email.\n3. JANGAN LANGSUNG MEMBUAT TIKET jika ada keluhan (gaji kurang/bonus/dll).\n   - VALIDASI DULU: Tanyakan detail keluhannya atau jelaskan alasannya jika kamu tahu informasinya (misal: jika ada aturan HRD terkait keterlambatan bonus).\n   - Kamu bisa menggunakan tool 'Get row(s) in sheet' untuk mencocokkan data apakah bonus memang 0 di database.\n   - Jika karyawan memang merasa ada yang salah dan butuh investigasi lebih lanjut oleh staf HR, berikan respon yang empatik dan sampaikan bahwa kamu akan melaporkannya.\n   - DI AKHIR pesanmu, selipkan format ini (wajib persis seperti ini):\n   [BUAT_TIKET] Email_Karyawan | Kategori_Singkat | Deskripsi_Masalah_Sesuai_Keluhan\n4. Contoh percakapan:\n   Pengguna: \"Bonus saya kok belum cair?\"\n   Kamu: \"Mohon maaf atas ketidaknyamanannya. Berdasarkan data slip gaji Anda, bonus memang tercatat Rp0. Saya akan membuatkan tiket pelaporan agar tim HRD dapat mengecek apakah ada keterlambatan pengiriman bonus. Mohon ditunggu ya!\n   [BUAT_TIKET] budi@gmail.com | Bonus Belum Cair | Karyawan lembur tapi bonus masih Rp0\"\n5. Jika keluhan marah besar, selipkan [ESKALASI_HR] di akhir pesan."
+        }
+      },
+      "id": "f20eff48-9414-40d8-8b06-44a947b78877",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -976,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "id": "d7d040be-5b8a-4824-a7aa-52c54477a52d",
+      "name": "Groq Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        688
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "OMTLllEw4FbdVvRy",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "997d2940-37c1-4b17-8051-202d3b749a35",
+      "name": "Window Buffer Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        -864,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk",
+          "mode": "list",
+          "cachedResultName": "Payroll",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Payrol",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "866c513b-c591-47e2-bcfe-897a6216a316",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -736,
+        688
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BQF2LwiYNRfeq9Qn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = items[0].json;\nconst rawOutput = input.output || \"\";\n\nlet isTicket = false;\nlet email = \"\", kategori = \"\", deskripsi = \"\";\nlet finalOutput = rawOutput;\n\nif (rawOutput.includes(\"[BUAT_TIKET]\")) {\n    isTicket = true;\n    try {\n        const partsToExtract = rawOutput.split(\"[BUAT_TIKET]\");\n        const aiResponse = partsToExtract[0].trim();\n        const str = partsToExtract[1].trim();\n        const parts = str.split(\"|\").map(s => s.trim());\n        email = parts[0] || \"Unknown\";\n        kategori = parts[1] || \"General\";\n        deskripsi = parts[2] || \"No description\";\n        finalOutput = `${aiResponse}\\n\\n🎫 *(Sistem: Tiket laporan \"${kategori}\" telah berhasil dicatat ke Spreadsheet)*`;\n    } catch(e) {}\n} else if (rawOutput.includes(\"[ESKALASI_HR]\")) {\n    const aiResponse = rawOutput.split(\"[ESKALASI_HR]\")[0].trim();\n    finalOutput = `${aiResponse}\\n\\n🚨 *(Sistem: Pesan telah dieskalasi ke tim HR)*`;\n} else if (input.Nama && input['Gaji Pokok']) {\n    finalOutput = `*SLIP GAJI KARYAWAN*\\nNama: ${input.Nama}\\nJabatan: ${input.Jabatan}\\n\\nGaji Pokok: Rp ${Number(input['Gaji Pokok']).toLocaleString('id-ID')}\\nBPJS: Rp ${Number(input['BPJS']||0).toLocaleString('id-ID')}\\nPajak: Rp ${Number(input['Pajak']||0).toLocaleString('id-ID')}\\nBonus: Rp ${Number(input['Bonus']||0).toLocaleString('id-ID')}\\n\\nTOTAL BERSIH: Rp ${Number(input['Gaji Bersih']).toLocaleString('id-ID')}`;\n}\n\nreturn [{\n    json: {\n        isTicket: isTicket,\n        email: email,\n        kategori: kategori,\n        deskripsi: deskripsi,\n        output: finalOutput.replace(/[*_`[\\]()|]/g, '')\n    }\n}];"
+      },
+      "id": "c7b6ee51-b857-41e8-bfb5-62690b3ea0f4",
+      "name": "Code in JavaScript1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isTicket }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "ae314ffc-68a9-42b3-b889-81ab56f3909f",
+      "name": "If Is Ticket",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk",
+          "mode": "list",
+          "cachedResultName": "Payroll",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1904965819,
+          "mode": "list",
+          "cachedResultName": "Tiket_Sengketa",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk/edit#gid=1904965819"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Kategori": "={{ $json.kategori }}",
+            "Deskripsi": "={{ $json.deskripsi }}",
+            "Chat_ID": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+            "Status": "Open",
+            "Notif_Terkirim": "Belum"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Kategori",
+              "displayName": "Kategori",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Deskripsi",
+              "displayName": "Deskripsi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chat_ID",
+              "displayName": "Chat_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jawaban_HRD",
+              "displayName": "Jawaban_HRD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notif_Terkirim",
+              "displayName": "Notif_Terkirim",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0fe11f68-2718-4304-a407-38eca7626d1a",
+      "name": "Add Ticket to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -256,
+        368
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BQF2LwiYNRfeq9Qn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.from.id }}",
+        "text": "={{ $('Code in JavaScript1').item.json.output }}",
+        "additionalFields": {}
+      },
+      "id": "48ed63a1-558f-4ce8-a9a4-d5c7968cf713",
+      "name": "Send a text message1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        480
+      ],
+      "webhookId": "2a885642-4fd0-4426-87f0-cf0a179a6b4c",
+      "credentials": {
+        "telegramApi": {
+          "id": "M1mvJFg9qDqIE9DV",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "7525346c-52ee-4901-bef7-366b635f81a1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1376,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk",
+          "mode": "list",
+          "cachedResultName": "Payroll",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1904965819,
+          "mode": "list",
+          "cachedResultName": "Tiket_Sengketa",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk/edit#gid=1904965819"
+        },
+        "options": {}
+      },
+      "id": "b43b0834-6a29-4bb3-89b3-1802c6bdd5f9",
+      "name": "Get Tiket",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -1168,
+        944
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BQF2LwiYNRfeq9Qn",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.Notif_Terkirim }}",
+              "value2": "Belum"
+            },
+            {
+              "value1": "={{ $json.Jawaban_HRD || '' }}",
+              "operation": "notEqual"
+            }
+          ]
+        }
+      },
+      "id": "12175f69-51cd-4bdc-90c6-1a44b7fc3123",
+      "name": "If Jawaban Diisi",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.Chat_ID }}",
+        "text": "={{ 'Halo! Laporan sengketa Anda terkait *' + $json.Kategori + '* telah ditangani oleh tim HRD.\\n\\n*Jawaban HRD:*\\n' + $json.Jawaban_HRD }}",
+        "additionalFields": {}
+      },
+      "id": "e5d89c88-f610-48ac-9f74-6773d9dd3ac9",
+      "name": "Send Telegram Notif",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -720,
+        864
+      ],
+      "webhookId": "c2a49715-ddce-4739-a17d-fc190e716ed2",
+      "credentials": {
+        "telegramApi": {
+          "id": "M1mvJFg9qDqIE9DV",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk",
+          "mode": "list",
+          "cachedResultName": "Payroll",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1904965819,
+          "mode": "list",
+          "cachedResultName": "Tiket_Sengketa",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xanfG-dtcBZ-zd5V3xgn4PZ-QIcXgLLia8jBeZc7lCk/edit#gid=1904965819"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Notif_Terkirim": "Sudah",
+            "Status": "Selesai",
+            "row_number": "={{ $json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Kategori",
+              "displayName": "Kategori",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Deskripsi",
+              "displayName": "Deskripsi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Chat_ID",
+              "displayName": "Chat_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jawaban_HRD",
+              "displayName": "Jawaban_HRD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notif_Terkirim",
+              "displayName": "Notif_Terkirim",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "95334e2a-f683-4f86-a601-a9bbb8ba0efd",
+      "name": "Update Status Terkirim",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -720,
+        1056
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BQF2LwiYNRfeq9Qn",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Set Session ID1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Session ID1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If Is Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Is Ticket": {
+      "main": [
+        [
+          {
+            "node": "Add Ticket to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Ticket to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Tiket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tiket": {
+      "main": [
+        [
+          {
+            "node": "If Jawaban Diisi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Jawaban Diisi": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notif",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status Terkirim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f7e81f2f-4a42-4308-bb84-e050208580ec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f777305a16fb3f863121adac5239eeee0e809720d144c4bf528788f5765bb5cd"
+  },
+  "nodeGroups": [],
+  "id": "2cGb6kPq1KQtAFCq",
+  "tags": []
+}
